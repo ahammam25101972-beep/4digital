@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Cairo", "Tajawal", system-ui, -apple-system, sans-serif;
+  --font-display: "Cairo", "Space Grotesk", sans-serif;
+  
+  --color-brand-blue: #0284c7;
+  --color-brand-dark: #0f172a;
+  --color-brand-card: #ffffff;
+  --color-neon-cyan: #0284c7;
+  --color-neon-blue: #2563eb;
+  --color-neon-purple: #9333ea;
+  --color-neon-green: #059669;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: #ffffff;
+    color: #0f172a;
+    font-family: var(--font-sans);
+    direction: rtl;
+  }
+}
+
+@layer utilities {
+  .glow-cyan {
+    text-shadow: 0 0 16px rgba(2, 132, 199, 0.25);
+  }
+  .glow-blue {
+    text-shadow: 0 0 16px rgba(37, 99, 235, 0.25);
+  }
+  .box-glow-cyan {
+    box-shadow: 0 10px 30px -5px rgba(2, 132, 199, 0.15), 0 4px 6px -2px rgba(2, 132, 199, 0.05);
+  }
+  .box-glow-blue {
+    box-shadow: 0 10px 30px -5px rgba(37, 99, 235, 0.15), 0 4px 6px -2px rgba(37, 99, 235, 0.05);
+  }
+  .glass-card {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+  }
+}
