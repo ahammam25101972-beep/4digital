@@ -5,6 +5,7 @@ import { CONTACT_INFO } from '../data/goDigitalData';
 
 interface NavbarProps {
   currency: 'EGP' | 'USD';
+  exchangeRate?: number;
   onCurrencyToggle: () => void;
   onOpenOrderModal: (planId?: string) => void;
   onOpenGoldenFridayModal?: (offerId?: string) => void;
@@ -14,6 +15,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ 
   currency, 
+  exchangeRate = 49.5,
   onCurrencyToggle, 
   onOpenOrderModal,
   onOpenGoldenFridayModal,
@@ -53,15 +55,16 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="bg-gradient-to-r from-slate-900 via-[#0e2b6c] to-slate-900 text-white text-xs sm:text-sm py-2 px-4 text-center flex flex-wrap items-center justify-center gap-3">
         <button
           type="button"
-          onClick={() => onOpenGoldenFridayModal && onOpenGoldenFridayModal('gf-idea-5000')}
-          className="flex items-center gap-1.5 text-amber-300 hover:text-amber-200 font-black cursor-pointer"
+          onClick={() => handleLinkClick('golden-friday-offers')}
+          className="flex items-center gap-1.5 text-amber-300 hover:text-amber-200 font-black underline underline-offset-4 decoration-amber-400/70 hover:decoration-amber-200 transition-colors cursor-pointer"
+          title="اضغط للانتقال إلى صفحة عروض الجمعة الذهبية"
         >
           <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
-          <span>اسأل عن عروض الجمعة الذهبية خلال شهر يناير</span>
+          <span>اسأل عن عروض الجمعة الذهبية خلال شهر نوفمبر</span>
         </button>
         <span className="hidden sm:inline text-slate-500">·</span>
         <a 
-          href={`${CONTACT_INFO.whatsappUrl}?text=${encodeURIComponent('مرحباً فور ديجيتال، أرغب في الاستفسار عن عروض الجمعة الذهبية خلال شهر يناير')}`} 
+          href={`${CONTACT_INFO.whatsappUrl}?text=${encodeURIComponent('مرحباً فور ديجيتال، أرغب في الاستفسار عن عروض الجمعة الذهبية خلال شهر نوفمبر')}`} 
           target="_blank" 
           rel="noopener noreferrer"
           className="text-emerald-300 font-bold hover:underline flex items-center gap-1"
@@ -103,15 +106,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </nav>
 
-          {/* Actions: Currency Toggle + Order (Copy Link button removed as requested) */}
+          {/* Actions: Currency Toggle + Order */}
           <div className="hidden md:flex items-center gap-2 shrink-0">
             <button 
               onClick={onCurrencyToggle}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
-              title="تبديل العملة"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                currency === 'USD'
+                  ? 'bg-emerald-50 border-emerald-400 text-emerald-900 shadow-2xs'
+                  : 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200'
+              }`}
+              title={`سعر الصرف اللحظي: 1 دولار = ${exchangeRate} ج.م (اضغط للتبديل)`}
             >
               <Globe className="w-3.5 h-3.5 text-blue-600" />
-              <span>{currency === 'EGP' ? 'ج.م' : 'USD'}</span>
+              <span>{currency === 'EGP' ? 'العملة: ج.م (تحويل لـ USD)' : `USD ($1 = ${exchangeRate} ج)`}</span>
             </button>
 
             <button 
@@ -126,9 +133,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-2 xl:hidden">
             <button 
               onClick={onCurrencyToggle}
-              className="px-2.5 py-1.5 rounded bg-slate-100 border border-slate-300 text-xs text-slate-800 font-bold md:hidden"
+              className="px-2.5 py-1.5 rounded-lg bg-slate-100 border border-slate-300 text-xs text-slate-800 font-bold md:hidden"
+              title={`1$ = ${exchangeRate} ج.م`}
             >
-              {currency === 'EGP' ? 'ج.م' : 'USD'}
+              {currency === 'EGP' ? 'ج.م' : `USD (${exchangeRate})`}
             </button>
 
             <button 

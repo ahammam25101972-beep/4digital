@@ -35,18 +35,18 @@ export const COURSES_DATA: Course[] = [
     lessonsCount: 36,
     instructor: 'د. كريم الشناوي',
     instructorRole: 'مستشار مالي وإداري معتمد من مايكروسوفت',
-    priceEGP: 1499,
-    priceUSD: 45,
-    originalPriceEGP: 2500,
+    priceEGP: 300,
+    priceUSD: 6,
+    originalPriceEGP: 500,
     rating: 4.9,
     studentsCount: 1850,
-    badge: 'الأكثر تسجيلاً ⭐',
+    badge: 'عرض الجمعة الذهبية 🔥',
     certificate: true,
     features: [
+      'محتوى تدريبي عملي شامل مع تطبيقات حقيقية',
       'شهادة إتمام معتمدة بكود تحقق رقمي',
       'تطبيقات عملية على أكثر من 30 ملف مالي وإداري حقيقي',
-      'ملفات وقوالب جاهزة للتحميل مجاناً مدى الحياة',
-      'مجموعة نقاش حصرية وتوجيه مباشر مع المدرب'
+      'ملفات وقوالب جاهزة للتحميل مجاناً مدى الحياة'
     ],
     syllabus: [
       {
@@ -78,18 +78,18 @@ export const COURSES_DATA: Course[] = [
     lessonsCount: 22,
     instructor: 'أ. سارة عبد الرحمن',
     instructorRole: 'خبيرة صياغة وتوثيق إداري وأكاديمي',
-    priceEGP: 999,
-    priceUSD: 30,
-    originalPriceEGP: 1800,
+    priceEGP: 300,
+    priceUSD: 6,
+    originalPriceEGP: 500,
     rating: 4.8,
     studentsCount: 1120,
-    badge: 'أساسي للشركات 📝',
+    badge: 'عرض الجمعة الذهبية 🔥',
     certificate: true,
     features: [
+      'تدريب عملي تطبيقي على صياغة المستندات الرسمية',
       'شهادة معتمدة في الكتابة الإدارية',
       'مكتبة صيغ عقود وخطابات رسمية قابلة للتعديل',
-      'إتقان أنماط التوثيق الأكاديمي APA و MLA',
-      'تصميم ترويسات ومطبوعات رسمية للشركات'
+      'إتقان أنماط التوثيق الأكاديمي APA و MLA'
     ],
     syllabus: [
       {
@@ -117,15 +117,15 @@ export const COURSES_DATA: Course[] = [
     lessonsCount: 28,
     instructor: 'م. أحمد نبيل',
     instructorRole: 'مطور ويب وخبير منصات التجارة الإلكترونية',
-    priceEGP: 1699,
-    priceUSD: 50,
-    originalPriceEGP: 2800,
+    priceEGP: 300,
+    priceUSD: 6,
+    originalPriceEGP: 500,
     rating: 4.9,
     studentsCount: 1450,
-    badge: 'شامل وعملي 🌐',
+    badge: 'عرض الجمعة الذهبية 🔥',
     certificate: true,
     features: [
-      'استضافة تجريبية مجانية ودومين مجاني خلال الدورة',
+      'شرح عملي متكامل من الصفر وحتى إطلاق الموقع',
       'تطبيق خطوة بخطوة لبناء متجر حقيقي متكامل',
       'ربط وسائل الدفع المصرية (InstaPay, Visa, Fawry)',
       'تهيئة محركات البحث SEO لزيادة المبيعات'
@@ -156,17 +156,17 @@ export const COURSES_DATA: Course[] = [
     lessonsCount: 18,
     instructor: 'أ. طارق حسام',
     instructorRole: 'مدير إبداعي ومصمم عروض استثمارية لشركات ناشئة',
-    priceEGP: 899,
-    priceUSD: 28,
-    originalPriceEGP: 1500,
+    priceEGP: 300,
+    priceUSD: 6,
+    originalPriceEGP: 500,
     rating: 4.8,
     studentsCount: 920,
-    badge: 'مهارة فائقة الأهمية 🚀',
+    badge: 'عرض الجمعة الذهبية 🔥',
     certificate: true,
     features: [
+      'ورش عمل تطبيقية لتصميم عروض الشركات والمستثمرين',
       'أكثر من 100 شريحة جاهزة للتعديل مجاناً',
       'تعلم تصميم الإنفوجرافيك والرسوم البيانية المقنعة',
-      'أسرار العرض والإلقاء (Storytelling)',
       'تصدير العروض بفيديو وPDF بجودة سينمائية'
     ],
     syllabus: [
@@ -191,18 +191,18 @@ export const COURSES_DATA: Course[] = [
     lessonsCount: 30,
     instructor: 'أ. محمود فوزي',
     instructorRole: 'خبير التسويق الرقمي وإدارة الميزانيات الإعلانية',
-    priceEGP: 1599,
-    priceUSD: 48,
-    originalPriceEGP: 2600,
+    priceEGP: 300,
+    priceUSD: 6,
+    originalPriceEGP: 500,
     rating: 4.9,
     studentsCount: 1680,
-    badge: 'زيادة المبيعات 📈',
+    badge: 'عرض الجمعة الذهبية 🔥',
     certificate: true,
     features: [
+      'تدريب عملي شامل على إدارة الحملات الممولة',
       'تطبيق عملي على حسابات إعلانية حقيقية',
       'ضبط بيكسل الميتا Meta Pixel و Google Analytics',
-      'صياغة نصوص الإعلانات الإبداعية (Copywriting)',
-      'استراتيجيات إعادة الاستهداف Retargeting'
+      'صياغة نصوص الإعلانات الإبداعية (Copywriting)'
     ],
     syllabus: [
       {
@@ -230,17 +230,18 @@ export const COURSES_DATA: Course[] = [
     lessonsCount: 24,
     instructor: 'م. إيهاب زكريا',
     instructorRole: 'مهندس أمن سيبراني وإدارة خوادم سحابية',
-    priceEGP: 1299,
-    priceUSD: 40,
-    originalPriceEGP: 2200,
+    priceEGP: 300,
+    priceUSD: 6,
+    originalPriceEGP: 500,
     rating: 4.7,
     studentsCount: 780,
+    badge: 'عرض الجمعة الذهبية 🔥',
     certificate: true,
     features: [
+      'تدريب عملي متقدم على إدارة وحماية السيرفرات',
       'تطبيق على لوحة cPanel وسيرفرات Linux الحقيقية',
       'إعداد شهادات SSL وجدران الحماية WAF',
-      'خطط الطوارئ واسترجاع البيانات المفقودة',
-      'فحص الثغرات ومعالجة الفيروسات الشائعة'
+      'خطط الطوارئ واسترجاع البيانات المفقودة'
     ],
     syllabus: [
       {

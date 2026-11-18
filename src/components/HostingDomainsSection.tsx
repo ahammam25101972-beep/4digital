@@ -12,23 +12,30 @@ import {
   Lock, 
   Mail, 
   HelpCircle,
-  Users
+  Users,
+  XCircle,
+  Loader2
 } from 'lucide-react';
+import { checkDomainAvailabilityReal, DomainCheckResult } from '../utils/domainChecker';
+import { convertEgpToUsdNumber } from '../utils/currencyConverter';
 
 interface HostingDomainsSectionProps {
   currency: 'EGP' | 'USD';
+  exchangeRate?: number;
   onCurrencyToggle: () => void;
   onSelectPlan: (planId: string, domainQuery?: string) => void;
 }
 
 export const HostingDomainsSection: React.FC<HostingDomainsSectionProps> = ({
   currency,
+  exchangeRate = 49.5,
   onCurrencyToggle,
   onSelectPlan
 }) => {
   const [domainInput, setDomainInput] = useState('');
   const [domainExt, setDomainExt] = useState('.com');
-  const [searchStatus, setSearchStatus] = useState<'idle' | 'searching' | 'available'>('idle');
+  const [searchStatus, setSearchStatus] = useState<'idle' | 'searching' | 'available' | 'taken' | 'invalid'>('idle');
+  const [checkResult, setCheckResult] = useState<DomainCheckResult | null>(null);
   const [showFullComparison, setShowFullComparison] = useState(false);
 
   const currencySymbol = currency === 'EGP' ? 'ج.م' : '$';
@@ -47,13 +54,19 @@ export const HostingDomainsSection: React.FC<HostingDomainsSectionProps> = ({
     'take-off': 'مناسبة لـ: المؤسسات الكبرى، المنصات الضخمة، والمتاجر ذات آلاف المنتجات والعملاء.'
   };
 
-  const handleDomainCheck = (e: React.FormEvent) => {
+  const handleDomainCheck = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!domainInput.trim()) return;
     setSearchStatus('searching');
-    setTimeout(() => {
-      setSearchStatus('available');
-    }, 500);
+    const result = await checkDomainAvailabilityReal(domainInput, domainExt);
+    setCheckResult(result);
+    if (result.cleanName) {
+      setDomainInput(result.cleanName);
+    }
+    if (result.extension) {
+      setDomainExt(result.extension);
+    }
+    setSearchStatus(result.status);
   };
 
   return (
@@ -152,10 +165,10 @@ export const HostingDomainsSection: React.FC<HostingDomainsSectionProps> = ({
                   type="text"
                   value={domainInput}
                   onChange={(e) => {
-                    setDomainInput(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''));
+                    setDomainInput(e.target.value.toLowerCase().replace(/[^a-z0-9.-]/g, ''));
                     setSearchStatus('idle');
                   }}
-                  placeholder="اكتب اسم شركتك بالإنجليزية (مثال: alahram-group)"
+                  placeholder="اكتب اسم شركتك بالإنجليزية (مثال: google أو alahram-group)"
                   className="w-full bg-transparent text-slate-900 placeholder:text-slate-400 font-sans text-sm sm:text-base focus:outline-none"
                   dir="ltr"
                 />
@@ -164,7 +177,10 @@ export const HostingDomainsSection: React.FC<HostingDomainsSectionProps> = ({
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <select 
                   value={domainExt}
-                  onChange={(e) => setDomainExt(e.target.value)}
+                  onChange={(e) => {
+                    setDomainExt(e.target.value);
+                    setSearchStatus('idle');
+                  }}
                   className="bg-slate-100 text-slate-800 text-sm font-bold rounded-xl px-3 py-2.5 border border-slate-300 focus:outline-none focus:border-blue-500"
                   dir="ltr"
                 >
@@ -177,25 +193,82 @@ export const HostingDomainsSection: React.FC<HostingDomainsSectionProps> = ({
 
                 <button
                   type="submit"
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 transition-all shrink-0 cursor-pointer"
+                  disabled={searchStatus === 'searching'}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white shadow-md shadow-blue-500/20 transition-all shrink-0 cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  فحص التوفر
+                  {searchStatus === 'searching' ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>جاري الفحص...</span>
+                    </>
+                  ) : (
+                    <span>فحص التوفر</span>
+                  )}
                 </button>
               </div>
             </form>
 
-            {searchStatus === 'available' && (
+            {searchStatus === 'searching' && (
+              <div className="mt-4 p-4 rounded-2xl bg-blue-50 border border-blue-200 text-blue-800 text-xs sm:text-sm font-bold flex items-center gap-2">
+                <Loader2 className="w-5 h-5 animate-spin text-blue-600 shrink-0" />
+                <span>جاري الاستعلام الفعلي عن النطاق في سجل النطاقات العالمي (DNS / WHOIS)...</span>
+              </div>
+            )}
+
+            {searchStatus === 'available' && checkResult && (
               <div className="mt-4 p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs sm:text-sm font-bold flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <span>رائع! النطاق <strong dir="ltr">{domainInput}{domainExt}</strong> متاح للحجز الفوري مجاناً مع الباقات.</span>
+                  <span>رائع! النطاق <strong dir="ltr" className="font-mono text-base">{checkResult.domain}</strong> غير مسجل ومتاح للحجز الفوري مجاناً مع الباقات.</span>
                 </div>
                 <button
-                  onClick={() => onSelectPlan('ramp-up', `${domainInput}${domainExt}`)}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shrink-0 shadow-xs"
+                  type="button"
+                  onClick={() => onSelectPlan('ramp-up', checkResult.domain)}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shrink-0 shadow-xs cursor-pointer"
                 >
                   احجز النطاق مع الباقة الآن
                 </button>
+              </div>
+            )}
+
+            {searchStatus === 'taken' && checkResult && (
+              <div className="mt-4 p-4 rounded-2xl bg-rose-50 border border-rose-300 text-rose-900 text-xs sm:text-sm space-y-3">
+                <div className="flex items-start gap-2 font-bold">
+                  <XCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                  <div>
+                    <span>عفواً! النطاق <strong dir="ltr" className="font-mono text-base text-rose-700">{checkResult.domain}</strong> محجوز بالفعل وغير متاح للتسجيل الجديد.</span>
+                    {checkResult.RegistrarOrNs && (
+                      <p className="text-[11px] text-rose-600 font-normal mt-0.5">
+                        الحالة الفورية: {checkResult.RegistrarOrNs}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {checkResult.suggestions.length > 0 && (
+                  <div className="pt-2 border-t border-rose-200/80 flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-black text-slate-700">نطاقات بديلة متاحة الآن للحجز:</span>
+                    {checkResult.suggestions.map((sug) => (
+                      <button
+                        key={sug}
+                        type="button"
+                        onClick={() => onSelectPlan('ramp-up', sug)}
+                        className="px-3 py-1.5 rounded-lg bg-white hover:bg-emerald-50 border border-emerald-400 text-emerald-800 font-mono text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                        dir="ltr"
+                      >
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{sug}</span>
+                        <span className="font-sans text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">احجز</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {searchStatus === 'invalid' && checkResult && (
+              <div className="mt-4 p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-800 text-xs sm:text-sm font-bold">
+                {checkResult.reason}
               </div>
             )}
           </div>
@@ -203,7 +276,7 @@ export const HostingDomainsSection: React.FC<HostingDomainsSectionProps> = ({
           {/* Extension Price Table */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-2">
             {domainPricing.map((item, idx) => {
-              const price = currency === 'EGP' ? item.priceEGP : item.priceUSD;
+              const price = currency === 'EGP' ? item.priceEGP : convertEgpToUsdNumber(item.priceEGP, exchangeRate);
               return (
                 <div 
                   key={idx}
@@ -233,33 +306,42 @@ export const HostingDomainsSection: React.FC<HostingDomainsSectionProps> = ({
             </div>
 
             {/* Currency Switch Bar */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 font-medium">عرض الأسعار بـ:</span>
-              <div className="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200">
-                <button
-                  onClick={() => currency !== 'EGP' && onCurrencyToggle()}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                    currency === 'EGP' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  جنيه مصري
-                </button>
-                <button
-                  onClick={() => currency !== 'USD' && onCurrencyToggle()}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                    currency === 'USD' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  دولار أمريكي
-                </button>
+            <div className="flex flex-col sm:items-end gap-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-500 font-medium">عرض الأسعار بـ:</span>
+                <div className="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200">
+                  <button
+                    onClick={() => currency !== 'EGP' && onCurrencyToggle()}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      currency === 'EGP' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    جنيه مصري
+                  </button>
+                  <button
+                    onClick={() => currency !== 'USD' && onCurrencyToggle()}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      currency === 'USD' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    دولار أمريكي (بسعر الصرف اللحظي)
+                  </button>
+                </div>
               </div>
+              {currency === 'USD' && (
+                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200">
+                  سعر الدولار اللحظي الآن: 1$ = {exchangeRate} ج.م
+                </span>
+              )}
             </div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 items-stretch">
             {GO_DIGITAL_PLANS.map((plan: GoDigitalPlan) => {
-              const price = currency === 'EGP' ? plan.priceEGP : plan.priceUSD;
-              const originalPrice = currency === 'EGP' ? plan.originalPriceEGP : Math.round((plan.originalPriceEGP || 0) / 38);
+              const price = currency === 'EGP' ? plan.priceEGP : convertEgpToUsdNumber(plan.priceEGP, exchangeRate);
+              const originalPrice = currency === 'EGP'
+                ? plan.originalPriceEGP
+                : plan.originalPriceEGP ? convertEgpToUsdNumber(plan.originalPriceEGP, exchangeRate) : undefined;
 
               return (
                 <div 

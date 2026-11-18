@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { COURSES_DATA, Course } from '../data/coursesData';
+import { COURSES_DATA } from '../data/coursesData';
 import { 
-  GraduationCap, 
   Clock, 
   BookOpen, 
   Award, 
@@ -9,17 +8,24 @@ import {
   Users, 
   CheckCircle2, 
   ArrowLeft, 
-  Sparkles,
-  ChevronDown
+  ChevronDown,
+  Flame,
+  MessageCircle
 } from 'lucide-react';
-import { AdditionalService } from '../data/goDigitalData';
+import { AdditionalService, CONTACT_INFO } from '../data/goDigitalData';
+import { convertEgpToUsdNumber, formatPriceText } from '../utils/currencyConverter';
 
 interface CoursesSectionProps {
   currency: 'EGP' | 'USD';
+  exchangeRate?: number;
   onEnrollCourse: (service: AdditionalService) => void;
 }
 
-export const CoursesSection: React.FC<CoursesSectionProps> = ({ currency, onEnrollCourse }) => {
+export const CoursesSection: React.FC<CoursesSectionProps> = ({
+  currency,
+  exchangeRate = 49.5,
+  onEnrollCourse
+}) => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [expandedSyllabus, setExpandedSyllabus] = useState<string | null>(null);
 
@@ -42,14 +48,14 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ currency, onEnro
   };
 
   return (
-    <section id="courses" className="py-20 relative bg-slate-50/70 border-t border-slate-200">
+    <section id="courses" className="py-16 relative bg-slate-50/70 border-t border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold">
-            <GraduationCap className="w-3.5 h-3.5 text-blue-600" />
-            <span>القسم الرابع المستقل: قسم الدورات التدريبية وورش العمل</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-black">
+            <Flame className="w-4 h-4 text-amber-600" />
+            <span>عرض الجمعة الذهبية على جميع الدورات: {formatPriceText('300 ج بدلاً من 500 ج', currency, exchangeRate)}</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-tight">
@@ -60,38 +66,38 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ currency, onEnro
           </h2>
 
           <p className="text-slate-600 text-base leading-relaxed">
-            برامج تدريبية وتطبيقية متقدمة في مايكروسوفت إكسيل، صياغة المستندات والعقود، بناء المتاجر والمواقع، التسويق الإلكتروني، وإدارة السيرفرات مع نخبة من المدربين المعتمدين وشهادات إتمام رسمية.
+            برامج تدريبية وتطبيقية متقدمة في مايكروسوفت إكسيل، صياغة المستندات والعقود، بناء المتاجر والمواقع، التسويق الإلكتروني، وإدارة السيرفرات — بسعر موحد ضمن عروض الجمعة الذهبية <strong>{formatPriceText('300 ج.م فقط بدلاً من 500 ج.م', currency, exchangeRate)}</strong> للكورس!
           </p>
+        </div>
 
-          {/* Category Filter Pills */}
-          <div className="pt-4 flex flex-wrap justify-center gap-2">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-                  activeCategory === cat.id
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'bg-white hover:bg-slate-100 border border-slate-300 text-slate-700'
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
+        {/* Category Filter Pills */}
+        <div className="flex flex-wrap justify-center gap-2">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                activeCategory === cat.id
+                  ? 'bg-[#0e2b6c] text-white shadow-xs'
+                  : 'bg-white hover:bg-slate-100 border border-slate-300 text-slate-700'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
         </div>
 
         {/* Courses Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
           {filteredCourses.map((course) => {
-            const price = currency === 'EGP' ? course.priceEGP : course.priceUSD;
-            const originalPrice = currency === 'EGP' ? course.originalPriceEGP : Math.round(course.originalPriceEGP / 38);
+            const price = currency === 'EGP' ? course.priceEGP : convertEgpToUsdNumber(course.priceEGP, exchangeRate);
+            const originalPrice = currency === 'EGP' ? course.originalPriceEGP : convertEgpToUsdNumber(course.originalPriceEGP, exchangeRate);
             const isExpanded = expandedSyllabus === course.id;
 
             return (
               <div
                 key={course.id}
-                className="p-6 sm:p-7 rounded-3xl bg-white border border-slate-200 hover:border-blue-400 hover:shadow-xl transition-all duration-300 shadow-sm flex flex-col justify-between group relative overflow-hidden"
+                className="p-6 sm:p-7 rounded-3xl bg-white border-2 border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all duration-300 shadow-sm flex flex-col justify-between group relative overflow-hidden"
               >
                 {/* Popular or Category Badge */}
                 <div className="flex items-center justify-between mb-3">
@@ -99,7 +105,7 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ currency, onEnro
                     {course.categoryLabel}
                   </span>
                   {course.badge && (
-                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300">
+                    <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
                       {course.badge}
                     </span>
                   )}
@@ -108,7 +114,7 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ currency, onEnro
                 <div className="space-y-4">
                   {/* Title & Tagline */}
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug">
+                    <h3 className="text-lg font-black text-slate-900 group-hover:text-[#0e2b6c] transition-colors leading-snug">
                       {course.title}
                     </h3>
                     <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
@@ -143,16 +149,24 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ currency, onEnro
                   </div>
 
                   {/* Pricing Box */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-right">
-                    <div className="text-[11px] text-slate-400 line-through">
-                      السعر الأصلي: {originalPrice.toLocaleString('ar-EG')} {currencySymbol}
+                  <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 text-right flex items-center justify-between">
+                    <div>
+                      <span className="block text-[11px] font-bold text-emerald-700">سعر عرض الجمعة الذهبية:</span>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-2xl sm:text-3xl font-black text-[#0e2b6c]">
+                          {currency === 'EGP' ? price.toLocaleString('ar-EG') : `$${price}`}
+                        </span>
+                        {currency === 'EGP' && (
+                          <span className="text-xs font-bold text-blue-700">
+                            {currencySymbol}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-black text-slate-900">
-                        {price.toLocaleString('ar-EG')}
-                      </span>
-                      <span className="text-xs font-bold text-blue-600">
-                        {currencySymbol} / وصول كامل
+                    <div className="text-left">
+                      <span className="block text-[11px] text-slate-400">بدلاً من:</span>
+                      <span className="text-sm font-bold text-rose-500 line-through">
+                        {currency === 'EGP' ? `${originalPrice.toLocaleString('ar-EG')} ${currencySymbol}` : `$${originalPrice}`}
                       </span>
                     </div>
                   </div>
@@ -171,7 +185,7 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ currency, onEnro
                   <div className="pt-2">
                     <button
                       onClick={() => toggleSyllabus(course.id)}
-                      className="w-full text-right text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center justify-between py-1.5 border-t border-slate-100"
+                      className="w-full text-right text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center justify-between py-1.5 border-t border-slate-100 cursor-pointer"
                     >
                       <span>{isExpanded ? 'إخفاء محاور الدورة' : 'استعراض محاور الدورة التفصيلية'}</span>
                       <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
@@ -194,22 +208,22 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ currency, onEnro
                   </div>
                 </div>
 
-                {/* Card Action */}
-                <div className="pt-5 mt-4 border-t border-slate-100">
+                {/* Card Actions */}
+                <div className="pt-5 mt-4 border-t border-slate-100 flex flex-col gap-2">
                   <button
                     onClick={() => onEnrollCourse({
                       id: course.id,
                       title: `التسجيل في: ${course.title}`,
                       description: `الاشتراك في ${course.title} مع ${course.instructor}، الحصول على الشهادة والمواد التدريبية`,
                       iconName: 'Layout',
-                      startingPrice: `${price} ${currencySymbol}`,
+                      startingPrice: `${course.priceEGP} ج.م`,
                       deliverableTime: course.duration,
-                      highlight: 'دورة معتمدة',
+                      highlight: 'عرض الجمعة الذهبية (300 ج بدلاً من 500 ج)',
                       category: 'web'
                     })}
-                    className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xs"
+                    className="w-full py-3 rounded-xl bg-[#0e2b6c] hover:bg-blue-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
                   >
-                    <span>التسجيل في الدورة والبدء الآن</span>
+                    <span>التسجيل في الدورة ({formatPriceText('300 ج بدلاً من 500 ج', currency, exchangeRate)})</span>
                     <ArrowLeft className="w-4 h-4" />
                   </button>
                 </div>
@@ -226,21 +240,22 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ currency, onEnro
             </div>
             <div>
               <h4 className="text-lg font-bold text-slate-900">
-                شهادات معتمدة مع كل دورة تدريبية
+                شهادات معتمدة ومحتوى تدريبي تطبيقي متكامل
               </h4>
               <p className="text-xs text-slate-600">
-                يحصل كل متدرب على شهادة إتمام رقمية برقم تسلسلي معتمد تثبت اجتيازه لكافة التطبيقات العملية والواجبات.
+                يحصل كل متدرب على الحقيبة التدريبية الكاملة للدورة مع شهادة إتمام رقمية معتمدة من فور ديجيتال.
               </p>
             </div>
           </div>
 
           <a
-            href="https://wa.me/201205132328?text=مرحباً%20فور%20ديجيتال،%20أود%20الاستفسار%20عن%20الدورات%20التدريبية%20المتاحة"
+            href={`${CONTACT_INFO.whatsappUrl}?text=${encodeURIComponent('مرحباً فور ديجيتال، أود الاشتراك في الدورات التدريبية بعرض الجمعة الذهبية 300 ج بدلاً من 500 ج.')}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-6 py-3 rounded-xl bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-800 border border-slate-300 font-bold text-xs sm:text-sm transition-all shrink-0"
+            className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all shrink-0 flex items-center gap-2"
           >
-            تواصل مع منسق الدورات عبر واتساب
+            <MessageCircle className="w-4 h-4 fill-white" />
+            <span>تواصل مع منسق الدورات عبر واتساب</span>
           </a>
         </div>
 

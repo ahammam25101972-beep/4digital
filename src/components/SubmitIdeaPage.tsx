@@ -14,8 +14,17 @@ import {
   MessageCircle 
 } from 'lucide-react';
 import { CONTACT_INFO } from '../data/goDigitalData';
+import { formatPriceText, DEFAULT_USD_TO_EGP_RATE } from '../utils/currencyConverter';
 
-export const SubmitIdeaPage: React.FC = () => {
+interface SubmitIdeaPageProps {
+  currency?: 'EGP' | 'USD';
+  exchangeRate?: number;
+}
+
+export const SubmitIdeaPage: React.FC<SubmitIdeaPageProps> = ({
+  currency = 'EGP',
+  exchangeRate = DEFAULT_USD_TO_EGP_RATE,
+}) => {
   const googleFormUrl = 'https://docs.google.com/forms/d/12l_TwLwwLyj_daHTzUDvS-WUxa7juL9eP-tdjLKX-1U/edit';
 
   const ideaOptions = [
@@ -82,7 +91,7 @@ export const SubmitIdeaPage: React.FC = () => {
     },
     {
       num: '03',
-      title: 'التنفيذ والتسليم بـ 5,000 ج فقط',
+      title: formatPriceText('التنفيذ والتسليم بـ 5,000 ج فقط', currency, exchangeRate),
       desc: 'نحول فكرتك إلى واقع ملموس (موقع أو متجر أو تطبيق موبايل) جاهز للعمل والربح.'
     }
   ];
@@ -109,7 +118,7 @@ export const SubmitIdeaPage: React.FC = () => {
 
             <div className="inline-block bg-white/10 backdrop-blur-xs border-2 border-amber-300 rounded-2xl px-6 py-4">
               <p className="text-2xl sm:text-4xl font-black text-amber-300">
-                بـ 5,000 ج فقط!
+                {formatPriceText('بـ 5,000 ج فقط!', currency, exchangeRate)}
               </p>
               <p className="text-xs sm:text-sm text-sky-100 mt-1">
                 شامل التصميم، البرمجة، لوحة التحكم، والدعم الفني الكامل
@@ -150,7 +159,7 @@ export const SubmitIdeaPage: React.FC = () => {
         <div className="space-y-6">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <h2 className="text-2xl sm:text-3xl font-black text-[#0e2b6c]">
-              ماذا يمكنك أن تنفذ ضمن مبادرة الـ 5,000 ج؟
+              {formatPriceText('ماذا يمكنك أن تنفذ ضمن مبادرة الـ 5,000 ج؟', currency, exchangeRate)}
             </h2>
             <p className="text-sm text-slate-600">
               اختر نوع المشروع الذي يناسب فكرتك وسنقوم بتحويله إلى منتج رقمي متكامل جاهز للإطلاق
@@ -171,7 +180,7 @@ export const SubmitIdeaPage: React.FC = () => {
                         <Icon className={`w-7 h-7 ${opt.color}`} />
                       </div>
                       <span className="px-3.5 py-1.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 font-black text-sm">
-                        {opt.price}
+                        {formatPriceText(opt.price, currency, exchangeRate)}
                       </span>
                     </div>
 

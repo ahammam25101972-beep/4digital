@@ -14,11 +14,14 @@ import {
   FileText 
 } from 'lucide-react';
 import { CONTACT_INFO } from '../data/goDigitalData';
+import { formatPriceText, DEFAULT_USD_TO_EGP_RATE } from '../utils/currencyConverter';
 
 interface GoldenFridayModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultOfferId?: string;
+  currency?: 'EGP' | 'USD';
+  exchangeRate?: number;
 }
 
 export interface GoldenOfferItem {
@@ -31,6 +34,30 @@ export interface GoldenOfferItem {
 }
 
 export const GOLDEN_FRIDAY_OFFERS: GoldenOfferItem[] = [
+  {
+    id: 'gf-courses-300',
+    title: 'عرض الدورات التدريبية الشاملة — خصم الجمعة الذهبية',
+    priceAfter: '300 ج.م',
+    priceBefore: '500 ج.م',
+    discountBadge: 'خصم 40%',
+    summary: 'احصل على أي دورة تدريبية متكاملة من قسم الدورات التدريبية (مايكروسوفت إكسيل، وورد، باوربوينت، إنشاء المواقع والمتاجر، التسويق الرقمي، وإدارة السيرفرات) بسعر 300 ج.م بدلاً من 500 ج.م.'
+  },
+  {
+    id: 'gf-kids-books-50',
+    title: 'عرض كتب الأطفال والقصص المصورة والذكاء الاصطناعي',
+    priceAfter: '50 ج.م',
+    priceBefore: '100 ج.م',
+    discountBadge: 'خصم 50%',
+    summary: 'كتب وقصص الأطفال المصورة من إنتاج منصة فور ديجيتال («سلسلة العلم والمعرفة: سر عالم النمل»، «رحلة في عالم البرومبت»، و«خطوات سعيد الأولى») بسعر 50 ج.م للكتاب بدلاً من 100 ج.م.'
+  },
+  {
+    id: 'gf-app-store',
+    title: 'عرض متجر التطبيقات والبرامج المحاسبية والأنظمة السحابية',
+    priceAfter: 'تبدأ من 600 ج.م',
+    priceBefore: '1,200 ج.م',
+    discountBadge: 'خصم حتى 50%',
+    summary: 'خصومات الجمعة الذهبية الحصرية على كافة تطبيقات المتجر وبرامج الحسابات والمخازن والصيانة والتقسيط والعيادات والمطاعم و ERP (سحابي 600 ج.م أو سطح مكتب يبدأ من 1,200 ج.م بترخيص دائم مدى الحياة).'
+  },
   {
     id: 'gf-idea-5000',
     title: 'عرض قدّم فكرتك (موقع أو متجر أو تطبيق موبايل)',
@@ -84,7 +111,9 @@ export const GOLDEN_FRIDAY_OFFERS: GoldenOfferItem[] = [
 export const GoldenFridayModal: React.FC<GoldenFridayModalProps> = ({
   isOpen,
   onClose,
-  defaultOfferId = 'gf-idea-5000'
+  defaultOfferId = 'gf-idea-5000',
+  currency = 'EGP',
+  exchangeRate = DEFAULT_USD_TO_EGP_RATE
 }) => {
   const [selectedOfferId, setSelectedOfferId] = useState<string>(defaultOfferId);
   const [fullName, setFullName] = useState('');
@@ -122,7 +151,7 @@ export const GoldenFridayModal: React.FC<GoldenFridayModalProps> = ({
       `📱 *الهاتف / واتساب:* ${phone}\n` +
       (companyOrEmail ? `🏢 *الشركة / البريد:* ${companyOrEmail}\n` : '') +
       `🎁 *العرض المختار:* ${selectedOffer.title}\n` +
-      `💰 *السعر بعد العرض:* ${selectedOffer.priceAfter} (بدلاً من ${selectedOffer.priceBefore})\n` +
+      `💰 *السعر بعد العرض:* ${formatPriceText(selectedOffer.priceAfter, currency, exchangeRate)} (بدلاً من ${formatPriceText(selectedOffer.priceBefore, currency, exchangeRate)})\n` +
       `💳 *طريقة الدفع المفضلة:* ${paymentMethod}\n` +
       (notes ? `📝 *تفاصيل إضافية:* ${notes}\n` : '');
     return `${CONTACT_INFO.whatsappUrl}?text=${encodeURIComponent(msg)}`;
@@ -215,10 +244,10 @@ export const GoldenFridayModal: React.FC<GoldenFridayModalProps> = ({
 
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200">
-                              {offer.priceAfter}
+                              {formatPriceText(offer.priceAfter, currency, exchangeRate)}
                             </span>
                             <span className="text-[11px] text-rose-500 line-through font-bold">
-                              {offer.priceBefore}
+                              {formatPriceText(offer.priceBefore, currency, exchangeRate)}
                             </span>
                             <span className="text-[10px] font-black bg-amber-400 text-slate-950 px-2 py-0.5 rounded-md">
                               {offer.discountBadge}
@@ -226,7 +255,7 @@ export const GoldenFridayModal: React.FC<GoldenFridayModalProps> = ({
                           </div>
                         </div>
                         <p className="text-[11px] text-slate-600 mt-1 pr-6 leading-relaxed">
-                          {offer.summary}
+                          {formatPriceText(offer.summary, currency, exchangeRate)}
                         </p>
                       </div>
                     );

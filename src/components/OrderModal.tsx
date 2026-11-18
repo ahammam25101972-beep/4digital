@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { GO_DIGITAL_PLANS, CONTACT_INFO, AdditionalService } from '../data/goDigitalData';
 import { X, CheckCircle, Globe, Shield, CreditCard } from 'lucide-react';
+import { convertEgpToUsdNumber, formatPriceText } from '../utils/currencyConverter';
 
 interface OrderModalProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface OrderModalProps {
   selectedService?: AdditionalService | null;
   defaultDomain?: string;
   currency: 'EGP' | 'USD';
+  exchangeRate?: number;
 }
 
 export const OrderModal: React.FC<OrderModalProps> = ({
@@ -17,7 +19,8 @@ export const OrderModal: React.FC<OrderModalProps> = ({
   selectedPlanId = 'ramp-up',
   selectedService,
   defaultDomain = '',
-  currency
+  currency,
+  exchangeRate = 49.5
 }) => {
   const [currentPlanId, setCurrentPlanId] = useState(selectedPlanId);
   const [domainName, setDomainName] = useState(defaultDomain);
@@ -39,7 +42,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
   if (!isOpen) return null;
 
   const currentPlan = GO_DIGITAL_PLANS.find(p => p.id === currentPlanId) || GO_DIGITAL_PLANS[1];
-  const price = currency === 'EGP' ? currentPlan.priceEGP : currentPlan.priceUSD;
+  const price = currency === 'EGP' ? currentPlan.priceEGP : convertEgpToUsdNumber(currentPlan.priceEGP, exchangeRate);
   const currencySymbol = currency === 'EGP' ? 'ج.م' : '$';
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -47,7 +50,9 @@ export const OrderModal: React.FC<OrderModalProps> = ({
     
     // Construct WhatsApp message
     const itemTitle = selectedService ? selectedService.title : `باقة ${currentPlan.name} (${currentPlan.arabicName})`;
-    const priceText = selectedService ? selectedService.startingPrice : `${price} ${currencySymbol} / سنة`;
+    const priceText = selectedService
+      ? formatPriceText(selectedService.startingPrice, currency, exchangeRate)
+      : `${price} ${currencySymbol} / سنة`;
     
     const paymentDisplayMap: Record<string, string> = {
       instapay: 'انستاباي (InstaPay)',
@@ -147,7 +152,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                     >
                       <div className="text-sm font-black">{plan.name}</div>
                       <div className="text-[11px] text-slate-500">
-                        {currency === 'EGP' ? plan.priceEGP : plan.priceUSD} {currencySymbol}
+                        {currency === 'EGP' ? plan.priceEGP : convertEgpToUsdNumber(plan.priceEGP, exchangeRate)} {currencySymbol}
                       </div>
                     </button>
                   ))}
@@ -160,7 +165,9 @@ export const OrderModal: React.FC<OrderModalProps> = ({
               <div>
                 <span className="text-xs text-slate-500 block">إجمالي القيمة:</span>
                 <span className="text-2xl font-black text-slate-900">
-                  {selectedService ? selectedService.startingPrice : `${price.toLocaleString('ar-EG')} ${currencySymbol}`}
+                  {selectedService
+                    ? formatPriceText(selectedService.startingPrice, currency, exchangeRate)
+                    : `${price.toLocaleString('ar-EG')} ${currencySymbol}`}
                 </span>
                 {!selectedService && (
                   <span className="text-xs text-slate-500 font-normal block">شامل الدومين والاستضافة لسنة كاملة</span>

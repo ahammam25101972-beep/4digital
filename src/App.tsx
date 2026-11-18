@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { HostingDomainsSection } from './components/HostingDomainsSection';
@@ -15,11 +15,14 @@ import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { OrderModal } from './components/OrderModal';
 import { GoldenFridayModal } from './components/GoldenFridayModal';
+import { GoldenFridayPage } from './components/GoldenFridayPage';
 import { AdditionalService, CONTACT_INFO } from './data/goDigitalData';
+import { fetchLiveUsdToEgpRate, DEFAULT_USD_TO_EGP_RATE } from './utils/currencyConverter';
 import { MessageCircle, Phone } from 'lucide-react';
 
 export default function App() {
   const [currency, setCurrency] = useState<'EGP' | 'USD'>('EGP');
+  const [exchangeRate, setExchangeRate] = useState<number>(DEFAULT_USD_TO_EGP_RATE);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isGoldenFridayModalOpen, setIsGoldenFridayModalOpen] = useState(false);
   const [goldenFridayOfferId, setGoldenFridayOfferId] = useState<string>('gf-idea-5000');
@@ -28,8 +31,30 @@ export default function App() {
   const [selectedDomain, setSelectedDomain] = useState<string>('');
   const [activeSection, setActiveSection] = useState<string>('home');
 
+  useEffect(() => {
+    let isMounted = true;
+    fetchLiveUsdToEgpRate().then((info) => {
+      if (isMounted && info.egpPerUsd > 0) {
+        setExchangeRate(info.egpPerUsd);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const handleCurrencyToggle = () => {
-    setCurrency(prev => prev === 'EGP' ? 'USD' : 'EGP');
+    setCurrency(prev => {
+      const next = prev === 'EGP' ? 'USD' : 'EGP';
+      if (next === 'USD') {
+        fetchLiveUsdToEgpRate().then((info) => {
+          if (info.egpPerUsd > 0) {
+            setExchangeRate(info.egpPerUsd);
+          }
+        });
+      }
+      return next;
+    });
   };
 
   const handleOpenOrderModal = (planId: string = 'ramp-up', domainQuery: string = '') => {
@@ -61,6 +86,7 @@ export default function App() {
       {/* Main Navigation Bar */}
       <Navbar
         currency={currency}
+        exchangeRate={exchangeRate}
         onCurrencyToggle={handleCurrencyToggle}
         onOpenOrderModal={handleOpenOrderModal}
         onOpenGoldenFridayModal={handleOpenGoldenFridayModal}
@@ -75,12 +101,24 @@ export default function App() {
             onOpenOrderModal={handleOpenOrderModal}
             onOpenGoldenFridayModal={handleOpenGoldenFridayModal}
             onSelectDepartment={handleNavigate}
+            currency={currency}
+            exchangeRate={exchangeRate}
+          />
+        )}
+
+        {activeSection === 'golden-friday-offers' && (
+          <GoldenFridayPage
+            onOpenGoldenFridayModal={handleOpenGoldenFridayModal}
+            onSelectSection={handleNavigate}
+            currency={currency}
+            exchangeRate={exchangeRate}
           />
         )}
 
         {activeSection === 'hosting-domains' && (
           <HostingDomainsSection
             currency={currency}
+            exchangeRate={exchangeRate}
             onCurrencyToggle={handleCurrencyToggle}
             onSelectPlan={handleOpenOrderModal}
           />
@@ -89,17 +127,24 @@ export default function App() {
         {activeSection === 'digital-services' && (
           <DigitalServicesSection
             onSelectService={handleSelectService}
+            currency={currency}
+            exchangeRate={exchangeRate}
           />
         )}
 
         {activeSection === 'app-store' && (
           <AppStoreSection
             onSelectApp={handleSelectService}
+            currency={currency}
+            exchangeRate={exchangeRate}
           />
         )}
 
         {activeSection === 'submit-idea' && (
-          <SubmitIdeaPage />
+          <SubmitIdeaPage
+            currency={currency}
+            exchangeRate={exchangeRate}
+          />
         )}
 
         {activeSection === 'portfolio' && (
@@ -111,12 +156,15 @@ export default function App() {
         {activeSection === 'library' && (
           <LibrarySection
             onCustomizeTemplate={handleSelectService}
+            currency={currency}
+            exchangeRate={exchangeRate}
           />
         )}
 
         {activeSection === 'courses' && (
           <CoursesSection
             currency={currency}
+            exchangeRate={exchangeRate}
             onEnrollCourse={handleSelectService}
           />
         )}
@@ -154,6 +202,7 @@ export default function App() {
         selectedService={selectedService}
         defaultDomain={selectedDomain}
         currency={currency}
+        exchangeRate={exchangeRate}
       />
 
       {/* Golden Friday Subscription & Booking Modal */}
@@ -161,6 +210,8 @@ export default function App() {
         isOpen={isGoldenFridayModalOpen}
         onClose={() => setIsGoldenFridayModalOpen(false)}
         defaultOfferId={goldenFridayOfferId}
+        currency={currency}
+        exchangeRate={exchangeRate}
       />
 
       {/* Floating Action Buttons (WhatsApp & Quick Call) */}

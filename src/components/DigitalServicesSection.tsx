@@ -16,8 +16,11 @@ import {
   Check 
 } from 'lucide-react';
 import { AdditionalService } from '../data/goDigitalData';
+import { formatPriceText } from '../utils/currencyConverter';
 
 interface DigitalServicesSectionProps {
+  currency?: 'EGP' | 'USD';
+  exchangeRate?: number;
   onSelectService: (service: AdditionalService) => void;
 }
 
@@ -27,7 +30,11 @@ interface DetailedService extends AdditionalService {
   deliverables: string[];
 }
 
-export const DigitalServicesSection: React.FC<DigitalServicesSectionProps> = ({ onSelectService }) => {
+export const DigitalServicesSection: React.FC<DigitalServicesSectionProps> = ({
+  currency = 'EGP',
+  exchangeRate = 49.5,
+  onSelectService
+}) => {
   const services: DetailedService[] = [
     {
       id: 'srv-word-writing',
@@ -233,7 +240,11 @@ export const DigitalServicesSection: React.FC<DigitalServicesSectionProps> = ({ 
           </h1>
 
           <p className="text-slate-600 text-base leading-relaxed">
-            قائمة أسعار وخدمات فور ديجيتال: <strong className="text-slate-900">كتابة المستندات (10 ج/صفحة)</strong>، <strong className="text-slate-900">تنسيق وورد (50 ج لـ 20 صفحة)</strong>، <strong className="text-slate-900">إكسيل (20 ج لـ 20 صف)</strong>، <strong className="text-slate-900">باور بوينت (50 ج لـ 10 سلايد)</strong>، <strong className="text-slate-900">تصميم لوجو (150 ج)</strong>، <strong className="text-slate-900">كيو آر كود (50 ج)</strong>، <strong className="text-slate-900">منيو طعام (200 ج)</strong>، بالإضافة إلى كتابة المحتوى، بوستات السوشيال ميديا، والترجمة.
+            {formatPriceText(
+              'قائمة أسعار وخدمات فور ديجيتال: كتابة المستندات (10 ج/صفحة)، تنسيق وورد (50 ج لـ 20 صفحة)، إكسيل (20 ج لـ 20 صف)، باور بوينت (50 ج لـ 10 سلايد)، تصميم لوجو (150 ج)، كيو آر كود (50 ج)، منيو طعام (200 ج)، بالإضافة إلى كتابة المحتوى، بوستات السوشيال ميديا، والترجمة.',
+              currency,
+              exchangeRate
+            )}
           </p>
         </div>
 
@@ -251,7 +262,7 @@ export const DigitalServicesSection: React.FC<DigitalServicesSectionProps> = ({ 
                   </div>
                   <div className="text-left">
                     <span className="text-xs sm:text-sm font-black text-blue-800 bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200 inline-block">
-                      {service.startingPrice}
+                      {formatPriceText(service.startingPrice, currency, exchangeRate)}
                     </span>
                   </div>
                 </div>
@@ -288,7 +299,7 @@ export const DigitalServicesSection: React.FC<DigitalServicesSectionProps> = ({ 
                     <span>{service.deliverableTime}</span>
                   </span>
                   <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                    {service.highlight}
+                    {formatPriceText(service.highlight, currency, exchangeRate)}
                   </span>
                 </div>
               </div>
